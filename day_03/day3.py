@@ -34,8 +34,8 @@ wire2_instructions = "L1004,U406,L974,D745,R504,D705,R430,D726,R839,D550,L913,D5
 wire1_instructions = wire1_instructions.split(",")
 wire2_instructions = wire2_instructions.split(",")
 
-wires = {"wire1": [],
-         "wire2": []}
+wires = {"wire1": set(),
+         "wire2": set()}
 
 
 # Calculate wires
@@ -50,22 +50,22 @@ def calc_wire(wire_number, instructions):
             # Increment X
             for i in range(0, distance):
                 x += 1
-                wires["wire" + wire_number].append((x, y))
+                wires["wire" + wire_number].add((x, y))
         elif direction == "L":
             # Decrement X
             for i in range(0, distance):
                 x -= 1
-                wires["wire" + wire_number].append((x, y))
+                wires["wire" + wire_number].add((x, y))
         elif direction == "U":
             # Increment Y
             for i in range(0, distance):
                 y += 1
-                wires["wire" + wire_number].append((x, y))
+                wires["wire" + wire_number].add((x, y))
         elif direction == "D":
             # Decrement Y
             for i in range(0, distance):
                 y -= 1
-                wires["wire" + wire_number].append((x, y))
+                wires["wire" + wire_number].add((x, y))
 
 
 calc_wire(1, wire1_instructions)
