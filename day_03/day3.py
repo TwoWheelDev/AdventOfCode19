@@ -13,7 +13,7 @@ wire1_instructions = "R990,U475,L435,D978,L801,D835,L377,D836,L157,D84,R329,D342
                      "D920,R35,D432,R610,D63,R664,D39,L119,D47,L605,D228,L364,D14,L226,D365,R796,D233,R476,U145,L926," \
                      "D907,R681,U267,R844,U735,L948,U344,L629,U31,L383,U694,L666,U158,R841,D27,L150,D950,L335,U275," \
                      "L184,D157,R504,D602,R605,D185,L215,D420,R700,U809,L139,D937,L248,U693,L56,U92,L914,U743,R445," \
-                     "U417,L504,U23,R332,U865,R747,D553,R595,U845,R693,U915,R81 "
+                     "U417,L504,U23,R332,U865,R747,D553,R595,U845,R693,U915,R81"
 wire2_instructions = "L1004,U406,L974,D745,R504,D705,R430,D726,R839,D550,L913,D584,R109,U148,L866,U664,R341,U449," \
                      "L626,D492,R716,U596,L977,D987,L47,U612,L478,U928,L66,D752,R665,U415,R543,U887,R315,D866,R227," \
                      "D615,R478,U180,R255,D316,L955,U657,R752,U561,R786,U7,R918,D755,R506,U131,L875,D849,R823,D755," \
@@ -29,7 +29,7 @@ wire2_instructions = "L1004,U406,L974,D745,R504,D705,R430,D726,R839,D550,L913,D5
                      "L278,D748,L800,U755,L919,D985,L785,U676,R916,D528,L507,D469,L582,D8,L900,U512,L764,D124,L10," \
                      "U567,L379,D231,R841,D244,R479,U145,L769,D845,R651,U712,L920,U791,R95,D958,L608,D755,R967,U855," \
                      "R563,D921,L37,U699,L944,U718,R959,D195,L922,U726,R378,U258,R340,D62,L555,D135,L690,U269,L273," \
-                     "D851,L60,D851,R1,D315,R117,D855,L275,D288,R25,U503,R569,D596,L823,U687,L450 "
+                     "D851,L60,D851,R1,D315,R117,D855,L275,D288,R25,U503,R569,D596,L823,U687,L450"
 
 wire1_instructions = wire1_instructions.split(",")
 wire2_instructions = wire2_instructions.split(",")
@@ -37,11 +37,15 @@ wire2_instructions = wire2_instructions.split(",")
 wires = {"wire1": set(),
          "wire2": set()}
 
+wire_steps = {"wire1": {},
+              "wire2": {}}
+
 
 # Calculate wires
 def calc_wire(wire_number, instructions):
     x, y = 0, 0
     wire_number = str(wire_number)
+    step_counter = 0
     for instruction in instructions:
         direction = instruction[:1]
         distance = int(instruction[1:])
@@ -50,43 +54,50 @@ def calc_wire(wire_number, instructions):
             # Increment X
             for i in range(0, distance):
                 x += 1
+                step_counter += 1
                 wires["wire" + wire_number].add((x, y))
+                wire_steps["wire" + wire_number][(x, y)] = step_counter
         elif direction == "L":
             # Decrement X
             for i in range(0, distance):
                 x -= 1
+                step_counter += 1
                 wires["wire" + wire_number].add((x, y))
+                wire_steps["wire" + wire_number][(x, y)] = step_counter
         elif direction == "U":
             # Increment Y
             for i in range(0, distance):
                 y += 1
+                step_counter += 1
                 wires["wire" + wire_number].add((x, y))
+                wire_steps["wire" + wire_number][(x, y)] = step_counter
         elif direction == "D":
             # Decrement Y
             for i in range(0, distance):
                 y -= 1
+                step_counter += 1
                 wires["wire" + wire_number].add((x, y))
+                wire_steps["wire" + wire_number][(x, y)] = step_counter
 
 
 calc_wire(1, wire1_instructions)
 calc_wire(2, wire2_instructions)
-print("Wire 1 points:", len(wires["wire1"]))
-print("Wire 2 points:", len(wires["wire2"]))
-matches = []
-match_sum = []
-j = 0
-for point in wires["wire1"]:
-    print("Checking point", j)
-    if point in wires["wire2"]:
-        print("Match found on point", j)
-        matches.append(point)
-        x = point[0]
-        y = point[1]
-        if x < 0:
-            x = abs(point[0])
-        if y < 0:
-            y = abs(point[1])
-        match_sum.append(x + y)
-    j += 1
-match_sum = sorted(match_sum)
-print("Shortest distance = ", match_sum[0])
+
+match_intersection = wires["wire1"].intersection(wires["wire2"])
+match_sums = []
+match_steps = []
+for intersection in match_intersection:
+    ix = intersection[0]
+    iy = intersection[1]
+    if ix < 0:
+        ix = abs(ix)
+    if iy < 0:
+        iy = abs(iy)
+
+    match_sums.append(ix + iy)
+    match_steps.append(wire_steps["wire1"][intersection] + wire_steps["wire2"][intersection])
+
+match_sums = sorted(match_sums)
+match_steps = sorted(match_steps)
+print("Shortest distance = ", match_sums[0])
+print("Lowest amount of steps = ", match_steps[0])
