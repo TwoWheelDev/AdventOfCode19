@@ -1,111 +1,19 @@
 from itertools import permutations
-stored_output = None
+from aoc.intcomp import IntComp
 
 
-def run_program(program, pinput = None):
-    program = [int(x) for x in program.split(",")]
-    i = 0
-    input_counter = 0
-    while i < len(program):
-        operation = str(program[i]).rjust(5, "0")
-        opcode = operation[3:]
-        paramode = {1: int(operation[2]), 2: int(operation[1]), 3: int(operation[0])}
-
-        # Get values based on parameter mode
-        if opcode in ["01", "02", "05", "06", "07", "08"]:
-            if paramode[1]:
-                val1 = program[i + 1]
-            else:
-                val1 = program[program[i + 1]]
-
-            if paramode[2]:
-                val2 = program[i + 2]
-            else:
-                val2 = program[program[i + 2]]
-        elif opcode in ["04"]:
-            if paramode[1]:
-                addr = program[i + 1]
-            else:
-                addr = program[program[i + 1]]
-
-        # Save Address
-        if opcode in ["01", "02", "07", "08"]:
-            save_in = program[i + 3]
-        elif opcode == "03":
-            save_in = program[i + 1]
-
-        # Main computer operations
-        if opcode == "01":
-            # Addition
-            result = val1 + val2
-            program[save_in] = val1 + val2
-            i += 4
-        elif opcode == "02":
-            # Multiplication
-            result = val1 * val2
-            program[save_in] = result
-            i += 4
-        elif opcode == "03":
-            # Input Value
-            if not(pinput):
-                value = int(input("Enter value: "))
-            else:
-                value = pinput[input_counter]
-                input_counter += 1
-
-            program[save_in] = value
-            i += 2
-        elif opcode == "04":
-            # Print Output
-            global stored_output
-            stored_output = addr
-            print(addr)
-            i += 2
-        elif opcode == "05":
-            # Jump if true
-            if val1 > 0:
-                i = val2
-            else:
-                i += 3
-        elif opcode == "06":
-            # Jump if false
-            if val1 == 0:
-                i = val2
-            else:
-                i += 3
-        elif opcode == "07":
-            # Less than
-            if val1 < val2:
-                program[save_in] = 1
-            else:
-                program[save_in] = 0
-            i += 4
-        elif opcode == "08":
-            # Equals
-            if val1 == val2:
-                program[save_in] = 1
-            else:
-                program[save_in] = 0
-            i += 4
-        else:
-            break
-
-
-def load_program():
-    with open("day7_program.txt", 'r') as f:
-        return f.read()
-
-
-pcode = load_program()
 thruster_output = []
 phases = permutations(range(5))
 
+
 for phase in phases:
-    prog_input = (phase[0], 0)
-    run_program(pcode, prog_input)
-    for i in range(1, 5):
-        prog_input = (phase[i], stored_output)
-        run_program(pcode, prog_input)
-    thruster_output.append(stored_output)
+    prog_input = [(phase[0], 0)]
+    for i in range(5):
+        amp = IntComp("day7_program.txt")
+        amp.run_program(prog_input[i])
+        if i < 4:
+            prog_input.append((phase[i+1], amp.get_output()))
+        else:
+            thruster_output.append(amp.get_output())
 
 print("Max Thruster Output:", max(thruster_output))
