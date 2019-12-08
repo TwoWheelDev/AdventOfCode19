@@ -1,3 +1,4 @@
+from itertools import permutations
 stored_output = None
 
 
@@ -93,26 +94,11 @@ def load_program():
     with open("day7_program.txt", 'r') as f:
         return f.read()
 
-def generate_phases():
-    good_phases = []
-    dcounter = []
-    for a in range(5):
-        for b in range(5):
-            for c in range(5):
-                for d in range(5):
-                    for e in range(5):
-                        phase = (a, b, c, d, e)
-                        for digit in range(5):
-                            dcounter.append(phase.count(digit))
-                        if max(dcounter) == 1:
-                            good_phases.append(phase)
-                        dcounter.clear()
-    return good_phases
 
 pcode = load_program()
 phase2output = {}
 thruster_output = []
-phases = generate_phases()
+phases = permutations(range(5))
 
 for phase in phases:
     prog_input = (phase[0], 0)
