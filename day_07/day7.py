@@ -3,9 +3,7 @@ stored_output = None
 
 
 def run_program(program, pinput = None):
-    program = program.split(',')
-    intme = lambda x: int(x)
-    program = list(map(intme, program))
+    program = [int(x) for x in program.split(",")]
     i = 0
     input_counter = 0
     while i < len(program):
@@ -29,22 +27,26 @@ def run_program(program, pinput = None):
                 addr = program[i + 1]
             else:
                 addr = program[program[i + 1]]
+
+        # Save Address
+        if opcode in ["01", "02", "07", "08"]:
+            save_in = program[i + 3]
+        elif opcode == "03":
+            save_in = program[i + 1]
+
         # Main computer operations
         if opcode == "01":
             # Addition
-            save_in = program[i + 3]
             result = val1 + val2
             program[save_in] = val1 + val2
             i += 4
         elif opcode == "02":
             # Multiplication
-            save_in = program[i + 3]
             result = val1 * val2
             program[save_in] = result
             i += 4
         elif opcode == "03":
             # Input Value
-            save_in = program[i + 1]
             if not(pinput):
                 value = int(input("Enter value: "))
             else:
@@ -73,7 +75,6 @@ def run_program(program, pinput = None):
                 i += 3
         elif opcode == "07":
             # Less than
-            save_in = program[i + 3]
             if val1 < val2:
                 program[save_in] = 1
             else:
@@ -81,7 +82,6 @@ def run_program(program, pinput = None):
             i += 4
         elif opcode == "08":
             # Equals
-            save_in = program[i + 3]
             if val1 == val2:
                 program[save_in] = 1
             else:
@@ -90,13 +90,13 @@ def run_program(program, pinput = None):
         else:
             break
 
+
 def load_program():
     with open("day7_program.txt", 'r') as f:
         return f.read()
 
 
 pcode = load_program()
-phase2output = {}
 thruster_output = []
 phases = permutations(range(5))
 
@@ -106,7 +106,6 @@ for phase in phases:
     for i in range(1, 5):
         prog_input = (phase[i], stored_output)
         run_program(pcode, prog_input)
-    phase2output[phase] = stored_output
     thruster_output.append(stored_output)
 
 print("Max Thruster Output:", max(thruster_output))
