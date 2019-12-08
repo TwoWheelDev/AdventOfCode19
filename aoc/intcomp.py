@@ -61,8 +61,8 @@ class IntComp:
                 if not pinput:
                     value = int(input("Enter value: "))
                 else:
-                    value = pinput[input_counter]
-                    input_counter += 1
+                    value = pinput[0]
+                    pinput.remove(value)
 
                 self.memory[self._save] = value
                 i += 2
