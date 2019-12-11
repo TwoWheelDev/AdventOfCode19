@@ -7,11 +7,20 @@ class IntComp:
         self._params = []
         self._save = None
         self.memory = defaultdict(int)
-        self._output = None
+        self._output = []
         self._relative_base = 0
         self._debug = debug
-
         self._loadprogram()
+        self.state = 'INIT'
+        self.ip = 0
+
+    def reset(self):
+        self._loadprogram()
+        self._params.clear()
+        self._output.clear()
+        self._relative_base = 0
+        self.state = 'INIT'
+        self.ip = 0
 
     def _loadprogram(self):
         with open(self._program, 'r') as f:
@@ -71,74 +80,78 @@ class IntComp:
     def get_output(self):
         return self._output
 
-    def run_program(self, pinput=None):
-        i = 0
-        totalTicks = 0
+    def clear_output(self):
+        self._output.clear()
 
-        while i < len(self.memory):
-            totalTicks += 1
-            operation = str(self.memory[i]).rjust(5, "0")
+    def run_program(self, pinput=None):
+        self.state = 'RUN'
+        if pinput is None:
+            pinput = []
+
+        while self.ip < len(self.memory):
+            operation = str(self.memory[self.ip]).rjust(5, "0")
             opcode = operation[3:]
             paramode = (int(operation[2]), int(operation[1]), int(operation[0]))
-            self._get_parameters(opcode, paramode, i)
-            self._get_save_addr(opcode, paramode, i)
+            self._get_parameters(opcode, paramode, self.ip)
+            self._get_save_addr(opcode, paramode, self.ip)
 
             if opcode == "01":
                 # Addition
                 self.memory[self._save] = sum(self._params)
-                i += 4
+                self.ip += 4
             elif opcode == "02":
                 # Multiplication
                 self.memory[self._save] = self._params[0] * self._params[1]
-                i += 4
+                self.ip += 4
             elif opcode == "03":
                 # Input
                 if not pinput:
-                    value = int(input("Enter value: "))
+                    break
                 else:
                     value = pinput[0]
                     pinput.remove(value)
 
                 self.memory[self._save] = value
-                i += 2
+                self.ip += 2
             elif opcode == "04":
                 # Output
-                self._output = self._params[0]
+                self._output.append(self._params[0])
                 if self._debug:
-                    print("Debug: i=", i, "Output:", self._output)
-                i += 2
+                    print("Debug: i=", self.ip, "Output:", self._output)
+                self.ip += 2
             elif opcode == "05":
                 # Jump if true
                 if self._params[0] > 0:
-                    i = self._params[1]
+                    self.ip = self._params[1]
                 else:
-                    i += 3
+                    self.ip += 3
             elif opcode == "06":
                 # Jump if false
                 if self._params[0] == 0:
-                    i = self._params[1]
+                    self.ip = self._params[1]
                 else:
-                    i += 3
+                    self.ip += 3
             elif opcode == "07":
                 # Less than
                 if self._params[0] < self._params[1]:
                     self.memory[self._save] = 1
                 else:
                     self.memory[self._save] = 0
-                i += 4
+                self.ip += 4
             elif opcode == "08":
                 # Equals
                 if self._params[0] == self._params[1]:
                     self.memory[self._save] = 1
                 else:
                     self.memory[self._save] = 0
-                i += 4
+                self.ip += 4
             elif opcode == "09":
                 # Edit Relative Base
                 self._relative_base += self._params[0]
-                i += 2
+                self.ip += 2
             else:
                 # Opcode 99 - Halt
+                self.state = 'HALT'
                 break
 
 
