@@ -2,11 +2,11 @@ from aoc.intcomp import IntComp
 from collections import defaultdict
 from PIL import Image
 
-x, y = 5, 5
-xmin, xmax, ymin, ymax = 30, 30, 30, 30
+x, y = 0, 0
+xmin, xmax, ymin, ymax = 0, 0, 0, 0
 direction = 'U'
 panel = defaultdict(int)
-panel[(5, 5)] = 1
+panel[(0, 0)] = 1
 
 
 def main():
@@ -21,8 +21,7 @@ def main():
         computer.run_program(new_input)
 
     print(len(panel))
-
-    dim = (50, 15)
+    dim = (ymax+1, xmax+1)
 
     img = Image.new("RGB", dim, color="Blue")
     imap = img.load()
