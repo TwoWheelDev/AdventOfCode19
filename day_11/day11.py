@@ -2,16 +2,16 @@ from aoc.intcomp import IntComp
 from collections import defaultdict
 from PIL import Image
 
-x, y = 40, 40
+x, y = 5, 5
 xmin, xmax, ymin, ymax = 30, 30, 30, 30
 direction = 'U'
 panel = defaultdict(int)
-panel[(40, 40)] = 1
+panel[(5, 5)] = 1
 
 
 def main():
     computer = IntComp("day11_input.txt", debug=False)
-    computer.run_program([0])
+    computer.run_program([1])
     output = []
     while computer.state == 'RUN':
         output.clear()
@@ -22,7 +22,7 @@ def main():
 
     print(len(panel))
 
-    dim = (xmax+10, ymax+10)
+    dim = (50, 15)
 
     img = Image.new("RGB", dim, color="Blue")
     imap = img.load()
@@ -54,10 +54,10 @@ def process_output(output):
             y += 1
         elif direction == 'L':
             direction = 'D'
-            x -= 1
+            x += 1
         elif direction == 'R':
             direction = 'U'
-            x += 1
+            x -= 1
     elif output[1] == 1:
         if direction == 'U':
             direction = 'R'
@@ -67,10 +67,10 @@ def process_output(output):
             y -= 1
         elif direction == 'L':
             direction = 'U'
-            x += 1
+            x -= 1
         elif direction == 'R':
             direction = 'D'
-            x -= 1
+            x += 1
 
         if x > xmax:
             xmax = x
