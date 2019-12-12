@@ -12,8 +12,8 @@ for phase in phases:
         amp = IntComp("day7_program.txt")
         amp.run_program(prog_input[i])
         if i < 4:
-            prog_input.append([phase[i+1], amp.get_output()])
+            prog_input.append([phase[i+1], amp.get_output()[0]])
         else:
-            thruster_output.append(amp.get_output())
+            thruster_output.append(amp.get_output()[0])
 
 print("Max Thruster Output:", max(thruster_output))
