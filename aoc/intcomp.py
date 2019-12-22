@@ -1,4 +1,5 @@
 from collections import defaultdict
+from copy import copy
 
 
 class IntComp:
@@ -7,6 +8,7 @@ class IntComp:
         self._params = []
         self._save = None
         self.memory = defaultdict(int)
+        self._orig_memory = defaultdict(int)
         self._output = []
         self._relative_base = 0
         self._debug = debug
@@ -15,7 +17,7 @@ class IntComp:
         self.ip = 0
 
     def reset(self):
-        self._loadprogram()
+        self.memory = copy(self._orig_memory)
         self._params.clear()
         self._output.clear()
         self._relative_base = 0
@@ -28,6 +30,8 @@ class IntComp:
             for x in f.read().split(","):
                 self.memory[counter] = int(x)
                 counter += 1
+
+        self._orig_memory = copy(self.memory)
 
     def _get_parameters(self, opcode, paramode, pointer):
         # Paramodes
@@ -106,10 +110,17 @@ class IntComp:
             elif opcode == "03":
                 # Input
                 if not pinput:
+                    self.state = 'PAUSED'
                     break
                 else:
-                    value = pinput[0]
-                    pinput.remove(value)
+                    inp_type = type(pinput)
+                    value = None
+                    if inp_type == list:
+                        value = pinput[0]
+                        pinput.remove(value)
+                    elif inp_type == int:
+                        value = pinput
+                        pinput = None
 
                 self.memory[self._save] = value
                 self.ip += 2
